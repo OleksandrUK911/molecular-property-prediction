@@ -165,6 +165,7 @@ def run_quality_checks(df: pd.DataFrame) -> dict:
     iqr = q3 - q1
     outlier_mask = (df["target"] < q1 - 1.5 * iqr) | (df["target"] > q3 + 1.5 * iqr)
     report["n_target_outliers_iqr"] = int(outlier_mask.sum())
+    report["target_outliers"] = df.loc[outlier_mask, ["compound_id", "smiles", "target"]].to_dict("records")
 
     split_smiles = {s: set(g["smiles"]) for s, g in df.groupby("split")}
     leaks = {}
@@ -195,6 +196,15 @@ def write_report(report: dict, dropped: list[dict], path: Path) -> None:
     lines.append(f"- Duplicate SMILES rows remaining after dedup: {report['n_duplicate_smiles_rows']}\n")
     lines.append(f"- Conflicting-label duplicate groups remaining: {report['n_conflicting_label_groups']}\n")
     lines.append(f"- Target outliers (IQR rule): {report['n_target_outliers_iqr']}\n")
+    lines.append(
+        "  Decision: kept in the dataset (not dropped). Manually inspected — "
+        "these are real, physically-plausible low-solubility compounds "
+        "(PCBs, polyaromatic hydrocarbons, long-chain alkanes/alcohols), not "
+        "measurement errors. Their residuals should be checked separately in "
+        "`ml/TODO_evaluation_validation.md`; if the model systematically fails "
+        "on them, that is an applicability-domain limitation to document in "
+        "the model card, not a reason to remove them here.\n"
+    )
     lines.append(f"- Split sizes: {report['split_sizes']}\n")
     lines.append(f"- Split leakage (should be empty): {report['split_leakage']}\n")
     lines.append(f"- Target mean/std by split: {report['target_stats_by_split']}\n")
@@ -210,6 +220,10 @@ def write_report(report: dict, dropped: list[dict], path: Path) -> None:
         lines.append("\n## Conflicting label examples\n")
         for ex in report["conflicting_examples"]:
             lines.append(f"- `{ex['smiles']}`: {ex['targets']}\n")
+    if report["target_outliers"]:
+        lines.append("\n## Target outliers (kept, see decision above)\n")
+        for ex in report["target_outliers"]:
+            lines.append(f"- {ex['compound_id']} (`{ex['smiles']}`): {ex['target']}\n")
     path.write_text("".join(lines), encoding="utf-8")
 
 
