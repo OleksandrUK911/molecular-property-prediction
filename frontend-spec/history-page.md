@@ -1,6 +1,7 @@
 # History page
 
 Шлях `/history`. Список попередніх передбачень поточного користувача/сесії.
+Дані — з `GET /history`, точна схема рядка — [../backend-spec/api-contract.md](../backend-spec/api-contract.md#get-history).
 
 ## Layout
 
@@ -34,8 +35,9 @@
 | **Populated** | Таблиця, найновіший запис зверху |
 | **Error** | Банер "Could not load history" + Retry (тільки якщо історія зберігається на бекенді, а не в localStorage) |
 
-## Залежність від сховища історії
-Якщо історія зберігається лише в `localStorage` (MVP-варіант) — стани Loading
-і Error для цієї сторінки не застосовуються, залишається лише Empty/Populated.
-Остаточне рішення — в `frontend/TODO_state_data_layer.md` /
-`backend/TODO_database.md`.
+## Сховище історії
+Вирішено: історія зберігається на бекенді (Postgres/SQLite, див.
+`backend/TODO_database.md`), не в `localStorage` — кожен `POST /predict`
+пише рядок server-side, фронтенд лише читає `GET /history`. Тому стани
+Loading/Error застосовуються повністю (мережевий запит, а не миттєве
+читання з локального сховища).

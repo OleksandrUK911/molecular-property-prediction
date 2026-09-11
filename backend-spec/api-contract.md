@@ -74,6 +74,42 @@ assumes — if one changes, update all three.
 ```
 Consumed by `frontend-spec/about-page.md` (Model Card page) and `ResultsCard`'s confidence badge, once the model registry (`ml/TODO_model_registry.md`) fixes real metric values.
 
+**This response body IS the schema for `models/production/metadata.json`** —
+the model registry (`ml/TODO_model_registry.md`) must write exactly this
+shape, and the backend serves it from disk mostly unchanged (it may add
+`model_version` mapping / drop internal-only fields, but must not rename the
+fields above).
+
+## `GET /history`
+Returns an array of history rows, newest first. Each successful
+`POST /predict` also persists one row here server-side (no separate write
+call from the frontend). Not yet listed in `backend/TODO_api_design.md` —
+add it there as a new P1 task alongside `/predict`.
+
+### History row shape
+```json
+{
+  "id": "b3f1...",
+  "smiles": "CC(=O)Oc1ccccc1C(=O)O",
+  "predicted_target": -2.31,
+  "model_version": "0.1.0",
+  "created_at": "2026-09-20T14:03:00Z"
+}
+```
+| Field | Type | Notes |
+|---|---|---|
+| `id` | string (UUID) | needed by `HistoryTable`'s "View" action to route back to Predict with this record |
+| `smiles` | string | canonical SMILES |
+| `predicted_target` | float | stored, not recomputed, so history stays correct even if the model is later retrained |
+| `model_version` | string | which model produced this prediction — not shown in `frontend-spec/history-page.md` table by default, but available for a future "model version" column/filter |
+| `created_at` | string (ISO 8601) | maps to the "Date" column |
+
+`structure_svg` / thumbnail is **not** stored — `HistoryTable`'s thumbnail is
+re-rendered on demand from `smiles` (same RDKit SVG path as `/predict`), to
+avoid duplicating render output in the DB. A `GET /history` list response is
+an array of the object above; no separate `/history/{id}` endpoint needed
+for MVP since "View" just re-populates the Predict page client-side.
+
 ### Залежності
 - `descriptors` field names are generated from `ml/preprocess.py`; if that
   dict changes, update this file AND `frontend-spec/components.md` /
