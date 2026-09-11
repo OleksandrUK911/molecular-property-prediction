@@ -1,0 +1,45 @@
+# Dataset — ESOL (Delaney solubility)
+
+## Choice
+
+Compared candidates: ESOL, Lipophilicity, QM9, MoleculeNet subset.
+Selected **ESOL** as the baseline dataset because:
+- Small (1128 compounds) — fast to iterate on for a first end-to-end pipeline.
+- Well documented, widely used as a standard MoleculeNet baseline.
+- Single, simple regression target (aqueous solubility) — good fit for the
+  "foundation" role of this first project (RDKit pipeline + FastAPI scaffold).
+
+## Source
+
+- Original publication: Delaney, J. S. "ESOL: Estimating Aqueous Solubility
+  Directly from Molecular Structure." J. Chem. Inf. Comput. Sci. 44.3 (2004).
+- Distribution used here: MoleculeNet / DeepChem mirror —
+  `https://deepchemdata.s3-us-west-1.amazonaws.com/datasets/delaney-processed.csv`
+- Downloaded: 2026-09-11
+- File: `data/raw/delaney-processed.csv`
+- Rows: 1128 compounds (+ header)
+- SHA-256: `8c06a76f0c6487d29ab0f903e6a7a7139f189ab3c1178f159c8be8964602f189`
+
+## Columns
+
+| Column | Description |
+|---|---|
+| Compound ID | Name of the compound |
+| ESOL predicted log solubility in mols per litre | Original ESOL model prediction (reference only, not our target) |
+| Minimum Degree, Molecular Weight, Number of H-Bond Donors, Number of Rings, Number of Rotatable Bonds, Polar Surface Area | Precomputed descriptors from the original dataset (we will recompute our own via RDKit instead of relying on these) |
+| **measured log solubility in mols per litre** | **Our prediction target (y)** |
+| smiles | SMILES string — our model input (x) |
+
+## License
+
+MoleculeNet datasets are distributed under permissive terms for research and
+educational reuse. The underlying ESOL data originates from Delaney (2004);
+cite the original publication when referencing results derived from this
+dataset. No restriction found on redistributing derived artifacts (trained
+models, computed descriptors) for portfolio/non-commercial educational use.
+
+## Size assessment
+
+1128 compounds is enough for a small train/val/test split (e.g. 80/10/10 —
+~900/110/110) for a baseline regression model, though not large enough for
+deep architectures like GNNs without regularization/augmentation care.
