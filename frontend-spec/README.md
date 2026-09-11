@@ -13,6 +13,7 @@
 - [about-page.md](about-page.md) — сторінка About / Model Card
 - [components.md](components.md) — переліки і специфікації окремих UI-компонентів
 - [data-visualization.md](data-visualization.md) — специфікація графіків (осі, дані, нормалізація)
+- [design-system.md](design-system.md) — кольори, типографіка, spacing, стани інтерактивних елементів
 
 ## Статус
 🟡 Чернетка — описано на основі поточного бекенд-контракту `/predict` (ще не
