@@ -21,13 +21,18 @@ placeholder-іконку молекули + текст "Structure preview unavai
 порожнього блоку.
 
 ## ResultsCard
-Вертикальний список полів:
+Вертикальний список полів (точні назви полів API — див.
+[../backend-spec/api-contract.md](../backend-spec/api-contract.md)):
 1. Заголовок: назва передбачуваної властивості + значення + одиниці
-   (напр. "Predicted solubility: −2.31 log(mol/L)")
+   (напр. "Predicted solubility: −2.31 log(mol/L)", з `predicted_target`)
 2. Розділювач
-3. Список дескрипторів (label: value) — MolWt, LogP, TPSA, H-Bond Donors,
-   Num Rings, Rotatable Bonds (усі поля, що повертає `/predict`)
-4. (P2, опційно) Confidence badge — кольоровий бейдж поруч із заголовком:
+3. Список дескрипторів (label: value), з об'єкта `descriptors`:
+   MolWt, LogP, TPSA, NumHDonors (H-Bond Donors), NumHAcceptors
+   (H-Bond Acceptors), NumRotatableBonds (Rotatable Bonds), RingCount
+   (Num Rings) — усі 7 полів, ярлики UI людяні, ключі як в API
+4. (P2, опційно) Confidence badge — з поля `confidence` (null для baseline
+   моделі — бейдж не показується, поки модель не підтримує uncertainty).
+   Кольоровий бейдж поруч із заголовком:
    зелений (high confidence / у межах applicability domain), жовтий (помірна
    невизначеність), без бейджа якщо модель не підтримує uncertainty.
 
