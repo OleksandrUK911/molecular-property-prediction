@@ -1,0 +1,32 @@
+{
+  "val": {
+    "model_name": "xgboost_tuned",
+    "split": "val",
+    "trained_at": "2026-09-11T22:05:18.193896+00:00",
+    "hyperparameters": {
+      "max_depth": 3,
+      "learning_rate": 0.03,
+      "n_estimators": 600,
+      "subsample": 0.9,
+      "colsample_bytree": 0.9
+    },
+    "rmse": 0.8642811760907383,
+    "mae": 0.6887181200213777,
+    "r2": 0.8199877189809004
+  },
+  "test": {
+    "model_name": "xgboost_tuned",
+    "split": "test",
+    "trained_at": "2026-09-11T22:05:18.193896+00:00",
+    "hyperparameters": {
+      "max_depth": 3,
+      "learning_rate": 0.03,
+      "n_estimators": 600,
+      "subsample": 0.9,
+      "colsample_bytree": 0.9
+    },
+    "rmse": 0.896644241192342,
+    "mae": 0.6370683302054895,
+    "r2": 0.8065085579446016
+  }
+}
