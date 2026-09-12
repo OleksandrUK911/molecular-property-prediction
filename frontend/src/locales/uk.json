@@ -58,7 +58,15 @@
       "NumHDonors": "Донори водневих зв'язків",
       "NumHAcceptors": "Акцептори водневих зв'язків",
       "NumRotatableBonds": "Обертові зв'язки",
-      "RingCount": "Кількість кільць"
+      "RingCount": "Кількість кілець"
+    },
+    "chart": {
+      "showTable": "Показати як таблицю",
+      "hideTable": "Сховати таблицю",
+      "tableCaption": "Значення дескрипторів, показані на діаграмі вище",
+      "columnDescriptor": "Дескриптор",
+      "columnRawValue": "Значення",
+      "columnNormalizedValue": "Нормалізоване значення (0-1)"
     }
   },
   "structure": {
@@ -67,6 +75,8 @@
   },
   "errors": {
     "retry": "Повторити",
-    "unexpected": "Неочікувана помилка"
+    "unexpected": "Неочікувана помилка",
+    "boundaryTitle": "Щось пішло не так",
+    "reloadButton": "Перезавантажити сторінку"
   }
 }

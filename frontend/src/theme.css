@@ -4,12 +4,16 @@
   --surface: #f5f6f8;
   --border: #e2e4e8;
   --text: #1a1d23;
-  --text-muted: #6b7280;
+  /* Darkened slightly from #6b7280 - see frontend/results/contrast_report.md
+     (failed WCAG AA 4.5:1 against --surface at 4.47:1). */
+  --text-muted: #5b6472;
   --accent: #2563eb;
   --accent-hover: #1d4ed8;
   --success: #16a34a;
   --warning: #d97706;
-  --error: #dc2626;
+  /* Darkened slightly from #dc2626 - see contrast report (failed AA against
+     --surface at 4.47:1). */
+  --error: #c81e1e;
   --radius-card: 8px;
   --radius-chip: 4px;
 }
@@ -22,10 +26,16 @@
     --text: #e8e9ec;
     --text-muted: #9aa0ab;
     --accent: #3b82f6;
-    --accent-hover: #60a5fa;
+    /* Darkened from #60a5fa - see contrast report. Used as the solid
+       submit-button background (white text needs a darker fill than
+       --accent to pass AA; --accent itself must stay lighter so it still
+       reads as nav-link text on the near-black --bg). */
+    --accent-hover: #2f6fe0;
     --success: #22c55e;
     --warning: #f59e0b;
-    --error: #ef4444;
+    /* Lightened slightly from #ef4444 - see contrast report (failed AA
+       against --surface at 4.49:1). */
+    --error: #f25454;
   }
 }
 
@@ -34,12 +44,12 @@
   --surface: #f5f6f8;
   --border: #e2e4e8;
   --text: #1a1d23;
-  --text-muted: #6b7280;
+  --text-muted: #5b6472;
   --accent: #2563eb;
   --accent-hover: #1d4ed8;
   --success: #16a34a;
   --warning: #d97706;
-  --error: #dc2626;
+  --error: #c81e1e;
 }
 
 :root[data-theme="dark"] {
@@ -49,10 +59,10 @@
   --text: #e8e9ec;
   --text-muted: #9aa0ab;
   --accent: #3b82f6;
-  --accent-hover: #60a5fa;
+  --accent-hover: #2f6fe0;
   --success: #22c55e;
   --warning: #f59e0b;
-  --error: #ef4444;
+  --error: #f25454;
 }
 
 body {

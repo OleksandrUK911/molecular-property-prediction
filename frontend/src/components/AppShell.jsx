@@ -3,6 +3,7 @@ import { NavLink, Outlet } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { applyTheme, getStoredTheme, setStoredTheme } from "../theme";
 import { setStoredLanguage, SUPPORTED_LANGUAGES } from "../i18n";
+import { ErrorBoundary } from "./ErrorBoundary";
 
 function getSystemPrefersDark() {
   return typeof window !== "undefined" && window.matchMedia?.("(prefers-color-scheme: dark)").matches;
@@ -84,7 +85,9 @@ export function AppShell() {
         </div>
       </header>
       <main style={{ maxWidth: 700, margin: "0 auto", padding: "24px 16px" }}>
-        <Outlet />
+        <ErrorBoundary>
+          <Outlet />
+        </ErrorBoundary>
       </main>
     </div>
   );

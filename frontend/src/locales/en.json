@@ -59,6 +59,14 @@
       "NumHAcceptors": "H-Bond Acceptors",
       "NumRotatableBonds": "Rotatable Bonds",
       "RingCount": "Num Rings"
+    },
+    "chart": {
+      "showTable": "View as table",
+      "hideTable": "Hide table",
+      "tableCaption": "Descriptor values shown in the chart above",
+      "columnDescriptor": "Descriptor",
+      "columnRawValue": "Raw value",
+      "columnNormalizedValue": "Normalized value (0-1)"
     }
   },
   "structure": {
@@ -67,6 +75,8 @@
   },
   "errors": {
     "retry": "Retry",
-    "unexpected": "Unexpected error"
+    "unexpected": "Unexpected error",
+    "boundaryTitle": "Something went wrong",
+    "reloadButton": "Reload page"
   }
 }
