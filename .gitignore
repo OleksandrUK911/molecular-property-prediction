@@ -18,3 +18,9 @@ ml/artifacts/xgboost_model.joblib
 .claude/worktrees/
 
 TODO/
+
+# Frontend test/e2e artifacts
+frontend/test-results/
+frontend/playwright-report/
+frontend/blob-report/
+frontend/coverage/
