@@ -1,0 +1,72 @@
+{
+  "common": {
+    "appTitle": "Molecular Property Prediction",
+    "mainNavigation": "Main navigation"
+  },
+  "nav": {
+    "predict": "Predict",
+    "history": "History",
+    "about": "About"
+  },
+  "theme": {
+    "toggleToLight": "Switch to light theme",
+    "toggleToDark": "Switch to dark theme",
+    "light": "Light",
+    "dark": "Dark"
+  },
+  "language": {
+    "label": "Language",
+    "switchTo": "Switch language to {{language}}"
+  },
+  "predict": {
+    "title": "Predict molecular properties",
+    "predicting": "Predicting…",
+    "smilesLabel": "SMILES string",
+    "submitButton": "Predict",
+    "examplesLabel": "Try an example:"
+  },
+  "history": {
+    "title": "Prediction history",
+    "loading": "Loading…",
+    "empty": "No predictions yet.",
+    "firstPrediction": "Make your first prediction",
+    "columnSmiles": "SMILES",
+    "columnPredicted": "Predicted",
+    "columnDate": "Date",
+    "viewButton": "View"
+  },
+  "about": {
+    "title": "About",
+    "description": "SMILES → RDKit descriptors → XGBoost → predicted aqueous solubility (log mol/L), trained on the ESOL (Delaney) dataset.",
+    "metricsTitle": "Metrics",
+    "columnSplit": "Split",
+    "columnRmse": "RMSE",
+    "columnMae": "MAE",
+    "columnR2": "R²",
+    "loadingMetrics": "Loading model metrics…",
+    "limitationsTitle": "Known limitations",
+    "disclaimerTitle": "Disclaimer",
+    "disclaimerText": "Research/educational project. Not for clinical or production chemistry use."
+  },
+  "results": {
+    "predictedSolubility": "Predicted solubility: {{value}} log(mol/L)",
+    "noConfidence": "This model does not provide a calibrated confidence score (point prediction only).",
+    "descriptors": {
+      "MolWt": "Molecular weight",
+      "LogP": "LogP",
+      "TPSA": "TPSA",
+      "NumHDonors": "H-Bond Donors",
+      "NumHAcceptors": "H-Bond Acceptors",
+      "NumRotatableBonds": "Rotatable Bonds",
+      "RingCount": "Num Rings"
+    }
+  },
+  "structure": {
+    "ariaLabel": "2D structure of the input molecule",
+    "unavailable": "Structure preview unavailable"
+  },
+  "errors": {
+    "retry": "Retry",
+    "unexpected": "Unexpected error"
+  }
+}

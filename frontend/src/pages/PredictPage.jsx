@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useLocation } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { ApiError, predict } from "../api";
 import { SmilesInput } from "../components/SmilesInput";
 import { ExampleChips } from "../components/ExampleChips";
@@ -9,6 +10,7 @@ import { ErrorBanner } from "../components/ErrorBanner";
 import { DescriptorBarChart } from "../components/DescriptorBarChart";
 
 export function PredictPage() {
+  const { t } = useTranslation();
   const location = useLocation();
   // Came from History page's "View" action - pre-fill, let the user
   // re-submit (we don't cache full prediction detail in history rows).
@@ -25,14 +27,14 @@ export function PredictPage() {
       setResult(data);
       setStatus("success");
     } catch (e) {
-      setError(e instanceof ApiError ? e.message : "Unexpected error");
+      setError(e instanceof ApiError ? e.message : t("errors.unexpected"));
       setStatus("error");
     }
   }
 
   return (
     <div>
-      <h1>Predict molecular properties</h1>
+      <h1>{t("predict.title")}</h1>
       <SmilesInput
         value={smiles}
         onChange={setSmiles}
@@ -51,7 +53,7 @@ export function PredictPage() {
 
       {status === "loading" && (
         <div style={{ marginTop: 24, textAlign: "center" }} className="text-muted" role="status" aria-live="polite">
-          Predicting…
+          {t("predict.predicting")}
         </div>
       )}
 

@@ -1,8 +1,11 @@
+import { useTranslation } from "react-i18next";
+
 export function MoleculeStructure({ svg }) {
+  const { t } = useTranslation();
   return (
     <div
       role="img"
-      aria-label="2D structure of the input molecule"
+      aria-label={t("structure.ariaLabel")}
       style={{
         width: 240,
         height: 240,
@@ -18,7 +21,7 @@ export function MoleculeStructure({ svg }) {
         // eslint-disable-next-line react/no-danger -- trusted, same-origin backend RDKit SVG, not user input
         <div dangerouslySetInnerHTML={{ __html: svg }} />
       ) : (
-        <span className="text-muted">Structure preview unavailable</span>
+        <span className="text-muted">{t("structure.unavailable")}</span>
       )}
     </div>
   );

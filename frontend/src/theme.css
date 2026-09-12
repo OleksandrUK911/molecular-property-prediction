@@ -29,6 +29,19 @@
   }
 }
 
+:root[data-theme="light"] {
+  --bg: #ffffff;
+  --surface: #f5f6f8;
+  --border: #e2e4e8;
+  --text: #1a1d23;
+  --text-muted: #6b7280;
+  --accent: #2563eb;
+  --accent-hover: #1d4ed8;
+  --success: #16a34a;
+  --warning: #d97706;
+  --error: #dc2626;
+}
+
 :root[data-theme="dark"] {
   --bg: #0f1115;
   --surface: #1a1d23;
@@ -55,4 +68,27 @@ h2 { font-size: 16px; font-weight: 600; }
 
 button {
   font-family: inherit;
+}
+
+/* Responsive helpers */
+.table-scroll {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.icon-button {
+  padding: 6px 10px;
+  border-radius: var(--radius-chip);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  cursor: pointer;
+  font-size: 13px;
+  line-height: 1;
+}
+
+@media (max-width: 480px) {
+  body {
+    font-size: 13px;
+  }
 }

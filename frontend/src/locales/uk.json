@@ -1,0 +1,72 @@
+{
+  "common": {
+    "appTitle": "Прогнозування молекулярних властивостей",
+    "mainNavigation": "Головна навігація"
+  },
+  "nav": {
+    "predict": "Прогноз",
+    "history": "Історія",
+    "about": "Про проєкт"
+  },
+  "theme": {
+    "toggleToLight": "Перемкнути на світлу тему",
+    "toggleToDark": "Перемкнути на темну тему",
+    "light": "Світла",
+    "dark": "Темна"
+  },
+  "language": {
+    "label": "Мова",
+    "switchTo": "Змінити мову на {{language}}"
+  },
+  "predict": {
+    "title": "Прогноз властивостей молекули",
+    "predicting": "Обчислення прогнозу…",
+    "smilesLabel": "Рядок SMILES",
+    "submitButton": "Прогнозувати",
+    "examplesLabel": "Спробуйте приклад:"
+  },
+  "history": {
+    "title": "Історія прогнозів",
+    "loading": "Завантаження…",
+    "empty": "Ще немає жодного прогнозу.",
+    "firstPrediction": "Зробити свій перший прогноз",
+    "columnSmiles": "SMILES",
+    "columnPredicted": "Прогноз",
+    "columnDate": "Дата",
+    "viewButton": "Переглянути"
+  },
+  "about": {
+    "title": "Про проєкт",
+    "description": "SMILES → дескриптори RDKit → XGBoost → прогнозована розчинність у воді (log моль/л), навчено на наборі даних ESOL (Delaney).",
+    "metricsTitle": "Метрики",
+    "columnSplit": "Вибірка",
+    "columnRmse": "RMSE",
+    "columnMae": "MAE",
+    "columnR2": "R²",
+    "loadingMetrics": "Завантаження метрик моделі…",
+    "limitationsTitle": "Відомі обмеження",
+    "disclaimerTitle": "Застереження",
+    "disclaimerText": "Дослідницький/навчальний проєкт. Не призначено для клінічного чи виробничого застосування в хімії."
+  },
+  "results": {
+    "predictedSolubility": "Прогнозована розчинність: {{value}} log(моль/л)",
+    "noConfidence": "Ця модель не надає каліброваної оцінки довірчого рівня (лише точковий прогноз).",
+    "descriptors": {
+      "MolWt": "Молекулярна маса",
+      "LogP": "LogP",
+      "TPSA": "TPSA",
+      "NumHDonors": "Донори водневих зв'язків",
+      "NumHAcceptors": "Акцептори водневих зв'язків",
+      "NumRotatableBonds": "Обертові зв'язки",
+      "RingCount": "Кількість кільць"
+    }
+  },
+  "structure": {
+    "ariaLabel": "2D-структура введеної молекули",
+    "unavailable": "Попередній перегляд структури недоступний"
+  },
+  "errors": {
+    "retry": "Повторити",
+    "unexpected": "Неочікувана помилка"
+  }
+}

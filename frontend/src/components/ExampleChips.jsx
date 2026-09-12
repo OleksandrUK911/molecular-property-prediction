@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next";
+
 const EXAMPLES = [
   { label: "Aspirin", smiles: "CC(=O)Oc1ccccc1C(=O)O" },
   { label: "Caffeine", smiles: "Cn1cnc2c1c(=O)n(C)c(=O)n2C" },
@@ -5,9 +7,10 @@ const EXAMPLES = [
 ];
 
 export function ExampleChips({ onPick, disabled }) {
+  const { t } = useTranslation();
   return (
-    <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
-      <span className="text-muted">Try an example:</span>
+    <div style={{ display: "flex", gap: 8, marginTop: 8, flexWrap: "wrap", alignItems: "center" }}>
+      <span className="text-muted">{t("predict.examplesLabel")}</span>
       {EXAMPLES.map((ex) => (
         <button
           key={ex.label}

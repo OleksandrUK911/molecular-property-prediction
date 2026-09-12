@@ -1,4 +1,7 @@
+import { useTranslation } from "react-i18next";
+
 export function ErrorBanner({ message, onRetry }) {
+  const { t } = useTranslation();
   return (
     <div
       role="alert"
@@ -12,6 +15,8 @@ export function ErrorBanner({ message, onRetry }) {
         border: "1px solid var(--error)",
         color: "var(--error)",
         marginTop: 8,
+        flexWrap: "wrap",
+        gap: 8,
       }}
     >
       <span>⚠ {message}</span>
@@ -21,7 +26,7 @@ export function ErrorBanner({ message, onRetry }) {
           onClick={onRetry}
           style={{ border: "1px solid var(--error)", background: "none", color: "var(--error)", borderRadius: "var(--radius-chip)", padding: "2px 10px", cursor: "pointer" }}
         >
-          Retry
+          {t("errors.retry")}
         </button>
       )}
     </div>

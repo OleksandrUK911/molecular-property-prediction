@@ -1,14 +1,17 @@
+import { useTranslation } from "react-i18next";
+
 export function SmilesInput({ value, onChange, onSubmit, disabled }) {
+  const { t } = useTranslation();
   return (
     <form
       onSubmit={(e) => {
         e.preventDefault();
         onSubmit();
       }}
-      style={{ display: "flex", gap: 8 }}
+      style={{ display: "flex", gap: 8, flexWrap: "wrap" }}
     >
       <label htmlFor="smiles-input" style={{ position: "absolute", left: -9999 }}>
-        SMILES string
+        {t("predict.smilesLabel")}
       </label>
       <input
         id="smiles-input"
@@ -16,10 +19,11 @@ export function SmilesInput({ value, onChange, onSubmit, disabled }) {
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder="e.g. CC(=O)Oc1ccccc1C(=O)O"
-        aria-label="SMILES string"
+        aria-label={t("predict.smilesLabel")}
         disabled={disabled}
         style={{
           flex: 1,
+          minWidth: 200,
           padding: "8px 12px",
           borderRadius: "var(--radius-card)",
           border: "1px solid var(--border)",
@@ -39,7 +43,7 @@ export function SmilesInput({ value, onChange, onSubmit, disabled }) {
           cursor: disabled ? "not-allowed" : "pointer",
         }}
       >
-        Predict
+        {t("predict.submitButton")}
       </button>
     </form>
   );
