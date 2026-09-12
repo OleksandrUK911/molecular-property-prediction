@@ -12,6 +12,7 @@ data/raw/
 data/processed/
 models/**/*.pkl
 models/**/*.pt
+models/archive/
 ml/artifacts/xgboost_model.joblib
 .pytest_cache/
 .coverage
