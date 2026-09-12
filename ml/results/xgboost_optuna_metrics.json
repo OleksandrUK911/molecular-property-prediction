@@ -1,0 +1,34 @@
+[
+  {
+    "model_name": "xgboost_optuna",
+    "split": "val",
+    "trained_at": "2026-09-12T08:45:53.149605+00:00",
+    "data_version": "815a49ba02ea",
+    "hyperparameters": {
+      "max_depth": 2,
+      "learning_rate": 0.03393891168826373,
+      "n_estimators": 697,
+      "subsample": 0.676174595034123,
+      "colsample_bytree": 0.9089797234514216
+    },
+    "rmse": 0.8245419555458939,
+    "mae": 0.6784083339725874,
+    "r2": 0.8361609034446071
+  },
+  {
+    "model_name": "xgboost_optuna",
+    "split": "test",
+    "trained_at": "2026-09-12T08:45:53.149605+00:00",
+    "data_version": "815a49ba02ea",
+    "hyperparameters": {
+      "max_depth": 2,
+      "learning_rate": 0.03393891168826373,
+      "n_estimators": 697,
+      "subsample": 0.676174595034123,
+      "colsample_bytree": 0.9089797234514216
+    },
+    "rmse": 0.820463881978869,
+    "mae": 0.6107102916603472,
+    "r2": 0.8379905418980378
+  }
+]
