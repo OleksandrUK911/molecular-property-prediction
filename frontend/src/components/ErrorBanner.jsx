@@ -1,6 +1,7 @@
 export function ErrorBanner({ message, onRetry }) {
   return (
     <div
+      role="alert"
       style={{
         display: "flex",
         alignItems: "center",

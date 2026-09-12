@@ -50,7 +50,7 @@ export function PredictPage() {
       {status === "error" && <ErrorBanner message={error} onRetry={() => runPrediction(smiles)} />}
 
       {status === "loading" && (
-        <div style={{ marginTop: 24, textAlign: "center" }} className="text-muted">
+        <div style={{ marginTop: 24, textAlign: "center" }} className="text-muted" role="status" aria-live="polite">
           Predicting…
         </div>
       )}

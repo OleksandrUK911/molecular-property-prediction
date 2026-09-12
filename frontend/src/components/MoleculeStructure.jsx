@@ -1,6 +1,8 @@
 export function MoleculeStructure({ svg }) {
   return (
     <div
+      role="img"
+      aria-label="2D structure of the input molecule"
       style={{
         width: 240,
         height: 240,

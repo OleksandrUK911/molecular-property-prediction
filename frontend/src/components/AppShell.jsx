@@ -22,7 +22,7 @@ export function AppShell() {
         }}
       >
         <strong>Molecular Property Prediction</strong>
-        <nav style={{ display: "flex", gap: 16 }}>
+        <nav aria-label="Main navigation" style={{ display: "flex", gap: 16 }}>
           <NavLink to="/" style={linkStyle} end>Predict</NavLink>
           <NavLink to="/history" style={linkStyle}>History</NavLink>
           <NavLink to="/about" style={linkStyle}>About</NavLink>
