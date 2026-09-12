@@ -48,16 +48,22 @@ def main() -> None:
             },
         },
         "known_limitations": [
-            "Trained on 1117 small drug-like molecules (ESOL/Delaney dataset); "
-            "unreliable outside this applicability domain.",
-            "Scaffold split means test metrics reflect generalization to unseen "
-            "scaffolds, not i.i.d. performance - a harder, more honest evaluation "
-            "than a random split, but not directly comparable to papers using "
-            "random splits on the same dataset.",
-            "Measurably worse on large hydrophobic/polyhalogenated compounds "
-            "(PCBs, polyaromatic hydrocarbons, long-chain alkanes): MAE 0.90 on "
-            "this 17-compound subset vs 0.40 dataset-wide - treat predictions "
-            "for such molecules with reduced confidence.",
+            (
+                "Trained on 1117 small drug-like molecules (ESOL/Delaney dataset); "
+                "unreliable outside this applicability domain."
+            ),
+            (
+                "Scaffold split means test metrics reflect generalization to unseen "
+                "scaffolds, not i.i.d. performance - a harder, more honest evaluation "
+                "than a random split, but not directly comparable to papers using "
+                "random splits on the same dataset."
+            ),
+            (
+                "Measurably worse on large hydrophobic/polyhalogenated compounds "
+                "(PCBs, polyaromatic hydrocarbons, long-chain alkanes): MAE 0.90 on "
+                "this 17-compound subset vs 0.40 dataset-wide - treat predictions "
+                "for such molecules with reduced confidence."
+            ),
         ],
         "model_type": "xgboost_tuned",
         "feature_names": bundle["feature_names"],

@@ -2,7 +2,7 @@
   "val": {
     "model_name": "xgboost_tuned",
     "split": "val",
-    "trained_at": "2026-09-11T22:05:18.193896+00:00",
+    "trained_at": "2026-09-12T04:08:54.711407+00:00",
     "hyperparameters": {
       "max_depth": 3,
       "learning_rate": 0.03,
@@ -17,7 +17,7 @@
   "test": {
     "model_name": "xgboost_tuned",
     "split": "test",
-    "trained_at": "2026-09-11T22:05:18.193896+00:00",
+    "trained_at": "2026-09-12T04:08:54.711407+00:00",
     "hyperparameters": {
       "max_depth": 3,
       "learning_rate": 0.03,

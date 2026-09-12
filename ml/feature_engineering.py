@@ -14,7 +14,6 @@ Writes:
 - ml/artifacts/descriptor_scaler.joblib (fit on train split only)
 """
 
-import json
 from pathlib import Path
 
 import joblib

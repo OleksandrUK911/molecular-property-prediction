@@ -9,7 +9,6 @@ Reads ml/artifacts/xgboost_model.joblib and data/processed/{esol_processed.csv,r
 Writes ml/results/evaluation_report.md.
 """
 
-import json
 import re
 from pathlib import Path
 

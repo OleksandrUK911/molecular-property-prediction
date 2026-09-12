@@ -10,7 +10,13 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
 from .inference import InvalidSmilesError, ModelService
-from .schemas import ErrorResponse, HealthResponse, ModelInfoResponse, PredictRequest, PredictResponse
+from .schemas import (
+    ErrorResponse,
+    HealthResponse,
+    ModelInfoResponse,
+    PredictRequest,
+    PredictResponse,
+)
 
 model_service: ModelService | None = None
 
