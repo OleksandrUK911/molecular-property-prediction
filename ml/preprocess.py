@@ -12,6 +12,7 @@ quality checks (duplicates, conflicting labels, split leakage).
 
 import argparse
 import json
+import urllib.request
 from pathlib import Path
 
 import numpy as np
@@ -24,9 +25,21 @@ RDLogger.DisableLog("rdApp.*")
 
 ROOT = Path(__file__).resolve().parent.parent
 RAW_PATH = ROOT / "data" / "raw" / "delaney-processed.csv"
+RAW_DATASET_URL = "https://deepchemdata.s3-us-west-1.amazonaws.com/datasets/delaney-processed.csv"
 PROCESSED_DIR = ROOT / "data" / "processed"
 SEED = 42
 SPLIT_RATIOS = (0.70, 0.15, 0.15)  # train, val, test
+
+
+def ensure_raw_dataset() -> None:
+    """data/raw/ is gitignored (see data/README.md) - fetch the dataset on
+    first run (locally or in CI) rather than requiring a manual download
+    step outside this script."""
+    if RAW_PATH.exists():
+        return
+    RAW_PATH.parent.mkdir(parents=True, exist_ok=True)
+    print(f"{RAW_PATH} not found, downloading from {RAW_DATASET_URL} ...")
+    urllib.request.urlretrieve(RAW_DATASET_URL, RAW_PATH)
 
 DESCRIPTOR_FUNCS = {
     "MolWt": Descriptors.MolWt,
@@ -233,6 +246,7 @@ def main() -> None:
     args = parser.parse_args()
 
     PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
+    ensure_raw_dataset()
 
     raw = pd.read_csv(RAW_PATH)
     clean, dropped = parse_and_canonicalize(raw)
