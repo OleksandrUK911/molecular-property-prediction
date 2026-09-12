@@ -4,15 +4,19 @@ GET /history is deferred (needs the DB schema from backend/TODO_database.md,
 not yet implemented) - tracked as a follow-up, not silently dropped.
 """
 
+import uuid
 from contextlib import asynccontextmanager
+from datetime import datetime, timezone
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
+from . import db
 from .inference import InvalidSmilesError, ModelService
 from .schemas import (
     ErrorResponse,
     HealthResponse,
+    HistoryItem,
     ModelInfoResponse,
     PredictRequest,
     PredictResponse,
@@ -26,6 +30,7 @@ async def lifespan(app: FastAPI):
     global model_service
     # Loaded once at startup, not per-request - see backend/TODO_api_design.md.
     model_service = ModelService()
+    db.init_db()
     yield
 
 
@@ -58,6 +63,22 @@ def model_info() -> dict:
 @app.post("/predict", response_model=PredictResponse, responses={422: {"model": ErrorResponse}})
 def predict(request: PredictRequest) -> dict:
     try:
-        return model_service.predict(request.smiles)
+        result = model_service.predict(request.smiles)
     except InvalidSmilesError as exc:
         raise HTTPException(status_code=422, detail=str(exc)) from exc
+
+    # Every successful prediction is persisted server-side - the frontend
+    # never writes history directly, see backend-spec/api-contract.md.
+    db.insert_history(
+        id=str(uuid.uuid4()),
+        smiles=result["smiles"],
+        predicted_target=result["predicted_target"],
+        model_version=model_service.metadata["model_version"],
+        created_at=datetime.now(timezone.utc).isoformat(),
+    )
+    return result
+
+
+@app.get("/history", response_model=list[HistoryItem])
+def history() -> list[dict]:
+    return db.list_history()

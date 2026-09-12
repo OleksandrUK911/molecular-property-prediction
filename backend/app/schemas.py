@@ -46,3 +46,11 @@ class ModelInfoResponse(BaseModel):
 
 class ErrorResponse(BaseModel):
     detail: str
+
+
+class HistoryItem(BaseModel):
+    id: str
+    smiles: str
+    predicted_target: float
+    model_version: str
+    created_at: str

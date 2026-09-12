@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useLocation } from "react-router-dom";
 import { ApiError, predict } from "../api";
 import { SmilesInput } from "../components/SmilesInput";
 import { ExampleChips } from "../components/ExampleChips";
@@ -8,7 +9,10 @@ import { ErrorBanner } from "../components/ErrorBanner";
 import { DescriptorBarChart } from "../components/DescriptorBarChart";
 
 export function PredictPage() {
-  const [smiles, setSmiles] = useState("");
+  const location = useLocation();
+  // Came from History page's "View" action - pre-fill, let the user
+  // re-submit (we don't cache full prediction detail in history rows).
+  const [smiles, setSmiles] = useState(location.state?.smiles || "");
   const [status, setStatus] = useState("idle"); // idle | loading | success | error
   const [result, setResult] = useState(null);
   const [error, setError] = useState(null);

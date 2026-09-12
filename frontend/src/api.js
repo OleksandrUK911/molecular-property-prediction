@@ -36,3 +36,7 @@ export function getModelInfo() {
 export function getHealth() {
   return request("/health");
 }
+
+export function getHistory() {
+  return request("/history");
+}
