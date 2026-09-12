@@ -1,5 +1,5 @@
 """FastAPI application: POST /predict, POST /predict/batch, GET /health,
-GET /model/info, GET /history."""
+GET /model/info, GET /history, GET /metrics."""
 
 import logging
 import os
@@ -9,7 +9,8 @@ from datetime import datetime, timezone
 
 from fastapi import Depends, FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, Response
+from prometheus_client import CONTENT_TYPE_LATEST, generate_latest
 from slowapi import Limiter
 from slowapi.errors import RateLimitExceeded
 from slowapi.util import get_remote_address
@@ -55,10 +56,17 @@ app = FastAPI(
 app.state.limiter = limiter
 app.middleware("http")(log_requests_middleware)
 
-# Frontend origin is configured via env var for prod; wide open here for local dev only.
+# Frontend origin(s) are configured via CORS_ALLOWED_ORIGINS (comma-separated)
+# so staging/prod can point at their real hosted origin without editing
+# source - see .env.example and docker-compose.*.yml.example. Falls back to
+# the local-dev defaults when unset, so local dev behavior is unchanged.
+_default_cors_origins = "http://localhost:5173,http://localhost:3000"
+_cors_origins_env = os.environ.get("CORS_ALLOWED_ORIGINS", _default_cors_origins)
+CORS_ALLOWED_ORIGINS = [origin.strip() for origin in _cors_origins_env.split(",") if origin.strip()]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://localhost:3000"],
+    allow_origins=CORS_ALLOWED_ORIGINS,
     allow_methods=["GET", "POST"],
     allow_headers=["*"],
 )
@@ -120,6 +128,17 @@ def _record_history(result: dict) -> None:
 )
 def health() -> HealthResponse:
     return HealthResponse(status="ok")
+
+
+@app.get(
+    "/metrics",
+    summary="Prometheus metrics",
+    description="Application metrics (request counts by endpoint/status, request latency "
+    "histogram) in Prometheus text-exposition format. Populated by the same "
+    "log_requests_middleware every request already flows through - see logging_config.py.",
+)
+def metrics() -> Response:
+    return Response(content=generate_latest(), media_type=CONTENT_TYPE_LATEST)
 
 
 @app.get(

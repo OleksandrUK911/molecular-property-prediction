@@ -34,6 +34,17 @@ def test_predict_empty_smiles_rejected_by_schema():
     assert response.status_code == 422  # Pydantic min_length validation
 
 
+def test_metrics_endpoint_returns_prometheus_text():
+    with TestClient(app) as client:
+        client.get("/health")  # generate at least one recorded request
+        response = client.get("/metrics")
+    assert response.status_code == 200
+    body = response.text
+    assert "# HELP" in body
+    assert "http_requests_total" in body
+    assert "http_request_latency_seconds" in body
+
+
 def test_model_info():
     with TestClient(app) as client:
         response = client.get("/model/info")
