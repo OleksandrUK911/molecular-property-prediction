@@ -39,6 +39,8 @@ def init_db() -> None:
             )
             """
         )
+        # Speeds up list_history()'s ORDER BY created_at DESC.
+        conn.execute("CREATE INDEX IF NOT EXISTS idx_history_created_at ON history(created_at)")
 
 
 def insert_history(id: str, smiles: str, predicted_target: float, model_version: str, created_at: str) -> None:

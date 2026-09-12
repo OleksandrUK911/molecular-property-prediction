@@ -11,6 +11,7 @@ Usage:
 """
 
 import json
+import shutil
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -20,8 +21,30 @@ ROOT = Path(__file__).resolve().parent.parent
 WINNER_MODEL_PATH = ROOT / "ml" / "artifacts" / "xgboost_model.joblib"
 WINNER_JSON_PATH = ROOT / "ml" / "results" / "winner.json"
 PRODUCTION_DIR = ROOT / "models" / "production"
+ARCHIVE_DIR = ROOT / "models" / "archive"
 
 MODEL_VERSION = "0.1.0"
+
+
+def _archive_previous_production() -> None:
+    """Before overwriting models/production/, copy its current contents to
+    models/archive/<old_version>/ so a bad rollout can be rolled back by
+    restoring an archived version - see backend/ROLLBACK.md."""
+    old_metadata_path = PRODUCTION_DIR / "metadata.json"
+    if not old_metadata_path.exists():
+        return  # Nothing registered yet - first run, nothing to archive.
+
+    old_metadata = json.loads(old_metadata_path.read_text(encoding="utf-8"))
+    old_version = old_metadata.get("model_version", "unknown")
+    dest = ARCHIVE_DIR / old_version
+    if dest.exists():
+        # Re-registering the same version - don't clobber an existing archive.
+        return
+    dest.mkdir(parents=True, exist_ok=True)
+    for item in PRODUCTION_DIR.iterdir():
+        if item.is_file():
+            shutil.copy2(item, dest / item.name)
+    print(f"Archived previous production model (version {old_version}) to {dest}")
 
 
 def main() -> None:
@@ -29,6 +52,7 @@ def main() -> None:
     bundle = joblib.load(WINNER_MODEL_PATH)
 
     PRODUCTION_DIR.mkdir(parents=True, exist_ok=True)
+    _archive_previous_production()
     joblib.dump(bundle, PRODUCTION_DIR / "model.pkl")
 
     metadata = {

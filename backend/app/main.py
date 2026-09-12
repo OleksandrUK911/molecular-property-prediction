@@ -1,5 +1,5 @@
-"""FastAPI application: POST /predict, GET /health, GET /model/info,
-GET /history."""
+"""FastAPI application: POST /predict, POST /predict/batch, GET /health,
+GET /model/info, GET /history."""
 
 import logging
 import uuid
@@ -21,12 +21,19 @@ from .schemas import (
     HealthResponse,
     HistoryItem,
     ModelInfoResponse,
+    PredictBatchItem,
+    PredictBatchItemError,
+    PredictBatchRequest,
+    PredictBatchResponse,
     PredictRequest,
     PredictResponse,
 )
 
 model_service: ModelService | None = None
 limiter = Limiter(key_func=get_remote_address)
+
+RATE_LIMIT_RESPONSE = {429: {"model": ErrorResponse, "description": "Too many requests - rate limit exceeded."}}
+VALIDATION_RESPONSE = {422: {"model": ErrorResponse, "description": "Invalid input (e.g. unparseable SMILES, or request body failing schema validation)."}}
 
 
 @asynccontextmanager
@@ -72,17 +79,50 @@ async def unhandled_exception_handler(request: Request, exc: Exception) -> JSONR
     return JSONResponse(status_code=500, content={"detail": "Internal server error"})
 
 
-@app.get("/health", response_model=HealthResponse)
+def _record_history(result: dict) -> None:
+    """Persist one successful prediction as a history row. Shared by
+    /predict and /predict/batch so the uuid/timestamp/insert logic lives
+    in exactly one place - the frontend never writes history directly,
+    see backend-spec/api-contract.md."""
+    db.insert_history(
+        id=str(uuid.uuid4()),
+        smiles=result["smiles"],
+        predicted_target=result["predicted_target"],
+        model_version=model_service.metadata["model_version"],
+        created_at=datetime.now(timezone.utc).isoformat(),
+    )
+
+
+@app.get(
+    "/health",
+    response_model=HealthResponse,
+    summary="Health check",
+    description="Liveness check. Always returns `{\"status\": \"ok\"}` if the process is up.",
+)
 def health() -> HealthResponse:
     return HealthResponse(status="ok")
 
 
-@app.get("/model/info", response_model=ModelInfoResponse)
+@app.get(
+    "/model/info",
+    response_model=ModelInfoResponse,
+    summary="Current model metadata",
+    description="Returns the version, training date, dataset, evaluation metrics, and known "
+    "limitations of the model currently loaded in production.",
+)
 def model_info() -> dict:
     return model_service.info()
 
 
-@app.post("/predict", response_model=PredictResponse, responses={422: {"model": ErrorResponse}})
+@app.post(
+    "/predict",
+    response_model=PredictResponse,
+    responses={**VALIDATION_RESPONSE, **RATE_LIMIT_RESPONSE},
+    summary="Predict solubility from a single SMILES string",
+    description="Parses the given SMILES with RDKit, computes molecular descriptors, and returns "
+    "the model's predicted aqueous solubility along with a rendered structure. Successful "
+    "predictions are persisted to /history. Rate limited to 30 requests/minute per client.",
+)
 @limiter.limit("30/minute")
 def predict(request: Request, body: PredictRequest) -> dict:
     try:
@@ -95,16 +135,44 @@ def predict(request: Request, body: PredictRequest) -> dict:
 
     # Every successful prediction is persisted server-side - the frontend
     # never writes history directly, see backend-spec/api-contract.md.
-    db.insert_history(
-        id=str(uuid.uuid4()),
-        smiles=result["smiles"],
-        predicted_target=result["predicted_target"],
-        model_version=model_service.metadata["model_version"],
-        created_at=datetime.now(timezone.utc).isoformat(),
-    )
+    _record_history(result)
     return result
 
 
-@app.get("/history", response_model=list[HistoryItem])
+@app.post(
+    "/predict/batch",
+    response_model=PredictBatchResponse,
+    responses={**VALIDATION_RESPONSE, **RATE_LIMIT_RESPONSE},
+    summary="Predict solubility for a batch of SMILES strings",
+    description="Runs prediction for up to 20 SMILES strings in one call. A SMILES that fails to "
+    "parse does not fail the whole batch - it comes back as a per-item `error` entry alongside the "
+    "other items' `result` entries, in the same order as the request. Every successful item is "
+    "persisted to /history. Rate limited to 30 requests/minute per client.",
+)
+@limiter.limit("30/minute")
+def predict_batch(request: Request, body: PredictBatchRequest) -> dict:
+    items: list[PredictBatchItem] = []
+    for smiles in body.smiles_list:
+        try:
+            result = model_service.predict(smiles)
+        except InvalidSmilesError as exc:
+            log_with_fields(logging.INFO, "predict_rejected", reason="invalid_smiles", smiles=smiles)
+            items.append(PredictBatchItem(error=PredictBatchItemError(smiles=smiles, error=str(exc))))
+            continue
+
+        log_with_fields(logging.INFO, "predict_ok", smiles=result["smiles"], predicted_target=result["predicted_target"])
+        _record_history(result)
+        items.append(PredictBatchItem(result=result))
+
+    return {"results": items}
+
+
+@app.get(
+    "/history",
+    response_model=list[HistoryItem],
+    summary="Recent prediction history",
+    description="Returns the most recent successful predictions (newest first), persisted "
+    "server-side by /predict and /predict/batch.",
+)
 def history() -> list[dict]:
     return db.list_history()
