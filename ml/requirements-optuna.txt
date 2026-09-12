@@ -1,0 +1,6 @@
+# Optuna is a heavy, occasional-use dependency for real hyperparameter search
+# (ml/experiments_xgboost_optuna.py) - not an interpretability tool, so it does
+# not belong in ml/requirements-interpretability.txt, and it's not needed for
+# the main CI/train path, so it stays out of requirements.txt / requirements-dev.txt
+# too (same "keep heavy/occasional deps isolated" pattern used elsewhere in ml/).
+optuna==5.0.0
