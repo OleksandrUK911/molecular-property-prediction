@@ -1,7 +1,7 @@
 # Multi-stage build - RDKit/xgboost wheels are large, so we install into a
 # venv in the builder stage and copy only the venv + app into a slim final
 # image (see TODO/devops/TODO_containerization.md's note on image size).
-FROM python:3.12-slim AS builder
+FROM python:3.14-slim AS builder
 
 WORKDIR /app
 RUN python -m venv /opt/venv
@@ -16,7 +16,7 @@ COPY backend/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt \
     && pip uninstall -y nvidia-nccl-cu13
 
-FROM python:3.12-slim
+FROM python:3.14-slim
 
 # RDKit's Draw/rdMolDraw2D (used to render structure_svg) needs these X11
 # libs even for headless SVG rendering - without them the import fails at
