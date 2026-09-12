@@ -1,0 +1,9 @@
+# Optional, heavy deps only needed for ml/experiments_gnn.py (a P2/optional
+# "does a GNN help?" experiment) - kept out of requirements.txt/requirements-dev.txt
+# so CI and the backend image don't pay for a multi-hundred-MB torch install.
+#
+# Install with:
+#   pip install torch --index-url https://download.pytorch.org/whl/cpu
+#   pip install -r ml/requirements-gnn.txt
+--find-links https://data.pyg.org/whl/torch-2.14.0+cpu.html
+torch_geometric
