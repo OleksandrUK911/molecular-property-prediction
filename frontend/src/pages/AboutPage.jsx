@@ -1,14 +1,17 @@
-import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { getModelInfo } from "../api";
 
 export function AboutPage() {
   const { t } = useTranslation();
-  const [info, setInfo] = useState(null);
 
-  useEffect(() => {
-    getModelInfo().then(setInfo).catch(() => setInfo(null));
-  }, []);
+  // Same info/null behavior as before: on error `info` stays null (via
+  // `data` being undefined) and the UI falls back to the loading-metrics
+  // copy, matching the original catch(() => setInfo(null)) contract.
+  const { data: info } = useQuery({
+    queryKey: ["modelInfo"],
+    queryFn: getModelInfo,
+  });
 
   return (
     <div>

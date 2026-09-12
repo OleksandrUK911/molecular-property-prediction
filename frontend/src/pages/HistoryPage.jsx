@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { ApiError, getHistory } from "../api";
@@ -10,27 +10,19 @@ function truncateSmiles(smiles, max = 24) {
 
 export function HistoryPage() {
   const { t } = useTranslation();
-  const [status, setStatus] = useState("loading"); // loading | success | error
-  const [rows, setRows] = useState([]);
-  const [error, setError] = useState(null);
   const navigate = useNavigate();
 
-  function load() {
-    setStatus("loading");
-    getHistory()
-      .then((data) => {
-        setRows(data);
-        setStatus("success");
-      })
-      .catch((e) => {
-        setError(e instanceof ApiError ? e.message : t("errors.unexpected"));
-        setStatus("error");
-      });
-  }
+  // useQuery replaces the manual load()/useState/useEffect trio: React
+  // Query owns the loading/error/data state machine, which is also what
+  // eliminates the old set-state-in-effect and exhaustive-deps warnings
+  // (there's no longer a raw useEffect calling setState here at all).
+  const { status, data, error, refetch } = useQuery({
+    queryKey: ["history"],
+    queryFn: getHistory,
+  });
+  const rows = data ?? [];
 
-  useEffect(load, []);
-
-  if (status === "loading") {
+  if (status === "pending") {
     return (
       <div>
         <h1>{t("history.title")}</h1>
@@ -40,10 +32,11 @@ export function HistoryPage() {
   }
 
   if (status === "error") {
+    const message = error instanceof ApiError ? error.message : t("errors.unexpected");
     return (
       <div>
         <h1>{t("history.title")}</h1>
-        <ErrorBanner message={error} onRetry={load} />
+        <ErrorBanner message={message} onRetry={refetch} />
       </div>
     );
   }

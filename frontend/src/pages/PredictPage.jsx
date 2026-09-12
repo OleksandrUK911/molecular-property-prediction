@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { ApiError, predict } from "../api";
 import { SmilesInput } from "../components/SmilesInput";
 import { ExampleChips } from "../components/ExampleChips";
@@ -12,25 +13,39 @@ import { DescriptorBarChart } from "../components/DescriptorBarChart";
 export function PredictPage() {
   const { t } = useTranslation();
   const location = useLocation();
+  const queryClient = useQueryClient();
   // Came from History page's "View" action - pre-fill, let the user
   // re-submit (we don't cache full prediction detail in history rows).
   const [smiles, setSmiles] = useState(location.state?.smiles || "");
-  const [status, setStatus] = useState("idle"); // idle | loading | success | error
-  const [result, setResult] = useState(null);
-  const [error, setError] = useState(null);
 
-  async function runPrediction(inputSmiles) {
-    setStatus("loading");
-    setError(null);
-    try {
-      const data = await predict(inputSmiles);
-      setResult(data);
-      setStatus("success");
-    } catch (e) {
-      setError(e instanceof ApiError ? e.message : t("errors.unexpected"));
-      setStatus("error");
-    }
+  // A prediction is submitted as a discrete action (not something that
+  // should auto-run/refetch on mount or on window refocus like a plain
+  // useQuery), so useMutation is the right hook for the "predicting..."
+  // /success/error lifecycle here. But we still want repeat submissions
+  // of the same SMILES to be served from cache instead of re-hitting the
+  // API, so the mutationFn itself routes through the query cache via
+  // queryClient.fetchQuery(), keyed by the SMILES string: fetchQuery
+  // returns cached data immediately when a fresh entry for that key
+  // already exists, and only calls predict() otherwise. This gets us
+  // mutation semantics (loading/error UX, imperative trigger) plus
+  // query-cache-backed memoization keyed by variables, without needing
+  // a separate manually-triggered useQuery per submission.
+  const mutation = useMutation({
+    mutationFn: (inputSmiles) =>
+      queryClient.fetchQuery({
+        queryKey: ["predict", inputSmiles],
+        queryFn: () => predict(inputSmiles),
+        staleTime: Infinity, // same SMILES within this session -> cached result
+      }),
+  });
+
+  function runPrediction(inputSmiles) {
+    mutation.mutate(inputSmiles);
   }
+
+  const status = mutation.status === "pending" ? "loading" : mutation.status;
+  const result = mutation.data;
+  const error = mutation.error instanceof ApiError ? mutation.error.message : t("errors.unexpected");
 
   return (
     <div>

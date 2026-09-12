@@ -1,10 +1,10 @@
 import { describe, expect, it, vi, beforeEach } from "vitest";
-import { render, screen, waitFor } from "@testing-library/react";
+import { screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { MemoryRouter } from "react-router-dom";
 import { PredictPage } from "./PredictPage";
 import { ApiError } from "../api";
 import { predict } from "../api";
+import { renderWithProviders } from "../testUtils";
 
 vi.mock("../api", async () => {
   const actual = await vi.importActual("../api");
@@ -15,11 +15,7 @@ vi.mock("../api", async () => {
 });
 
 function renderPage() {
-  return render(
-    <MemoryRouter>
-      <PredictPage />
-    </MemoryRouter>,
-  );
+  return renderWithProviders(<PredictPage />);
 }
 
 const sampleResult = {
