@@ -15,5 +15,6 @@ models/**/*.pt
 ml/artifacts/xgboost_model.joblib
 .pytest_cache/
 .coverage
+.claude/worktrees/
 
 TODO/
