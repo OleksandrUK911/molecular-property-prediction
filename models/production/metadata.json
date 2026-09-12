@@ -4,22 +4,22 @@
   "dataset": "ESOL (Delaney)",
   "metrics": {
     "val": {
-      "rmse": 0.864,
-      "mae": 0.689,
-      "r2": 0.82
+      "rmse": 0.825,
+      "mae": 0.678,
+      "r2": 0.836
     },
     "test": {
-      "rmse": 0.897,
-      "mae": 0.637,
-      "r2": 0.807
+      "rmse": 0.82,
+      "mae": 0.611,
+      "r2": 0.838
     }
   },
   "known_limitations": [
     "Trained on 1117 small drug-like molecules (ESOL/Delaney dataset); unreliable outside this applicability domain.",
     "Scaffold split means test metrics reflect generalization to unseen scaffolds, not i.i.d. performance - a harder, more honest evaluation than a random split, but not directly comparable to papers using random splits on the same dataset.",
-    "Measurably worse on large hydrophobic/polyhalogenated compounds (PCBs, polyaromatic hydrocarbons, long-chain alkanes): MAE 0.90 on this 17-compound subset vs 0.40 dataset-wide - treat predictions for such molecules with reduced confidence."
+    "Measurably worse on large hydrophobic/polyhalogenated compounds (PCBs, polyaromatic hydrocarbons, long-chain alkanes): MAE 0.97 on this 17-compound subset vs 0.45 dataset-wide (2.16x worse) - treat predictions for such molecules with reduced confidence."
   ],
-  "model_type": "xgboost_tuned",
+  "model_type": "xgboost_optuna",
   "feature_names": [
     "MolWt",
     "LogP",
@@ -30,10 +30,10 @@
     "RingCount"
   ],
   "hyperparameters": {
-    "max_depth": 3,
-    "learning_rate": 0.03,
-    "n_estimators": 600,
-    "subsample": 0.9,
-    "colsample_bytree": 0.9
+    "max_depth": 2,
+    "learning_rate": 0.03393891168826373,
+    "n_estimators": 697,
+    "subsample": 0.676174595034123,
+    "colsample_bytree": 0.9089797234514216
   }
 }

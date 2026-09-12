@@ -1,0 +1,8 @@
+{
+  "model_name": "xgboost_optuna",
+  "train_val_rmse_gap": 0.324,
+  "outlier_mae": 0.971,
+  "dataset_mae": 0.449,
+  "outlier_ratio": 2.16,
+  "outlier_caveat_warranted": true
+}

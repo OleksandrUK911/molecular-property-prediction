@@ -33,7 +33,9 @@ jobs:
           python ml/baseline.py
           python ml/experiments_xgboost.py
           python ml/experiments_fingerprint_models.py
+          python ml/experiments_xgboost_optuna.py
           python ml/select_winner.py
+          python ml/evaluate.py
           python ml/register_model.py
 
       - name: Test (pytest + coverage)

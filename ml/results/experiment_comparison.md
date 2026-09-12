@@ -16,12 +16,14 @@
 | ridge | val | 1.105 | 0.871 | 0.706 | 7 |
 | xgboost_default | test | 1.016 | 0.706 | 0.751 | 7 |
 | xgboost_default | val | 0.995 | 0.778 | 0.761 | 7 |
+| xgboost_optuna | test | 0.820 | 0.611 | 0.838 | 7 |
+| xgboost_optuna | val | 0.825 | 0.678 | 0.836 | 7 |
 | xgboost_tuned | test | 0.897 | 0.637 | 0.807 | 7 |
 | xgboost_tuned | val | 0.864 | 0.689 | 0.820 | 7 |
 
-## Winner: `xgboost_tuned`
+## Winner: `xgboost_optuna`
 
-- Val RMSE: 0.864 (best: 0.864, within 0.02 tiebreak margin considered)
-- Test RMSE: 0.897, R2: 0.807
+- Val RMSE: 0.825 (best: 0.825, within 0.02 tiebreak margin considered)
+- Test RMSE: 0.820, R2: 0.838
 - Features used: 7
 - Selection rule: best val RMSE; among near-ties (within 0.02), simplest/fewest-feature model wins for faster inference and easier interpretability.

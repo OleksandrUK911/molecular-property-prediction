@@ -2,13 +2,20 @@
 residuals specifically on the 17 IQR-flagged outlier compounds identified
 in ml/preprocess.py (kept in the dataset - see data/README.md).
 
+Loads whichever model ml/select_winner.py most recently picked (via
+ml/results/winner.json), not a hardcoded artifact - so this evaluation
+stays honest if the winner changes (e.g. ml/experiments_xgboost_optuna.py's
+candidate gets promoted).
+
 Usage:
     python ml/evaluate.py
 
-Reads ml/artifacts/xgboost_model.joblib and data/processed/{esol_processed.csv,report.md}.
+Reads ml/results/winner.json + the matching ml/artifacts/*.joblib, and
+data/processed/{esol_processed.csv,report.md}.
 Writes ml/results/evaluation_report.md.
 """
 
+import json
 import re
 from pathlib import Path
 
@@ -20,8 +27,17 @@ from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 ROOT = Path(__file__).resolve().parent.parent
 PROCESSED_CSV = ROOT / "data" / "processed" / "esol_processed.csv"
 DATA_REPORT = ROOT / "data" / "processed" / "report.md"
-MODEL_PATH = ROOT / "ml" / "artifacts" / "xgboost_model.joblib"
+ARTIFACTS_DIR = ROOT / "ml" / "artifacts"
+WINNER_JSON_PATH = ROOT / "ml" / "results" / "winner.json"
 OUTPUT_PATH = ROOT / "ml" / "results" / "evaluation_report.md"
+SUMMARY_PATH = ROOT / "ml" / "results" / "evaluation_summary.json"
+
+# Kept in sync with ml/register_model.py's mapping of the same name - see
+# that file's comment for why this can't just be inferred automatically.
+MODEL_ARTIFACTS = {
+    "xgboost_tuned": "xgboost_model.joblib",
+    "xgboost_optuna": "xgboost_optuna_model.joblib",
+}
 
 
 def compute_metrics(y_true, y_pred) -> dict:
@@ -39,10 +55,15 @@ def extract_outlier_compound_ids(report_text: str) -> list[str]:
 
 def main() -> None:
     df = pd.read_csv(PROCESSED_CSV)
-    bundle = joblib.load(MODEL_PATH)
+    winner_summary = json.loads(WINNER_JSON_PATH.read_text(encoding="utf-8"))
+    model_name = winner_summary["val"]["model_name"]
+    if model_name not in MODEL_ARTIFACTS:
+        raise ValueError(f"No artifact mapping for winner '{model_name}' - add one to MODEL_ARTIFACTS.")
+    bundle = joblib.load(ARTIFACTS_DIR / MODEL_ARTIFACTS[model_name])
     model, feature_names = bundle["model"], bundle["feature_names"]
 
-    lines = ["# Evaluation report (winner: xgboost_tuned)\n\n"]
+    lines = [f"# Evaluation report (winner: {model_name})\n\n"]
+    summary = {"model_name": model_name}
 
     # Overfitting check
     lines.append("## Overfitting check (train vs val/test)\n\n")
@@ -57,6 +78,7 @@ def main() -> None:
         f"\nTrain-val RMSE gap: {gap:.3f}. "
         + ("Mild overfitting, expected for a tuned tree model on ~843 rows - not severe.\n" if gap < 0.5 else "Notable gap - consider stronger regularization.\n")
     )
+    summary["train_val_rmse_gap"] = round(gap, 3)
 
     # Residuals on the 17 known outlier compounds
     outlier_ids = []
@@ -88,6 +110,10 @@ def main() -> None:
                 "average) - no special applicability-domain caveat needed for this subset.\n"
             )
             lines.append(verdict)
+            summary["outlier_mae"] = round(outlier_mae, 3)
+            summary["dataset_mae"] = round(overall_metrics["mae"], 3)
+            summary["outlier_ratio"] = round(outlier_mae / overall_metrics["mae"], 2)
+            summary["outlier_caveat_warranted"] = outlier_mae > overall_metrics["mae"] * 1.5
         else:
             lines.append("None of the flagged outlier compound_ids matched the processed dataset (dedup may have merged/renamed rows) — skipped.\n")
     else:
@@ -95,8 +121,10 @@ def main() -> None:
 
     OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
     OUTPUT_PATH.write_text("".join(lines), encoding="utf-8")
+    SUMMARY_PATH.write_text(json.dumps(summary, indent=2), encoding="utf-8")
     print("".join(lines))
     print(f"Wrote {OUTPUT_PATH}")
+    print(f"Wrote {SUMMARY_PATH}")
 
 
 if __name__ == "__main__":

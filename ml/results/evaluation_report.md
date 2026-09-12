@@ -1,12 +1,12 @@
-# Evaluation report (winner: xgboost_tuned)
+# Evaluation report (winner: xgboost_optuna)
 
 ## Overfitting check (train vs val/test)
 
-- train: RMSE=0.403, R2=0.962
-- val: RMSE=0.864, R2=0.820
-- test: RMSE=0.897, R2=0.807
+- train: RMSE=0.501, R2=0.941
+- val: RMSE=0.825, R2=0.836
+- test: RMSE=0.820, R2=0.838
 
-Train-val RMSE gap: 0.462. Mild overfitting, expected for a tuned tree model on ~843 rows - not severe.
+Train-val RMSE gap: 0.324. Mild overfitting, expected for a tuned tree model on ~843 rows - not severe.
 
 ## Residuals on the 17 IQR-flagged outlier compounds
 
@@ -14,23 +14,23 @@ Train-val RMSE gap: 0.462. Mild overfitting, expected for a tuned tree model on 
 
 | Compound | Split | Actual | Predicted | Residual |
 |---|---|---|---|---|
-| Deltamethrin | test | -8.40 | -6.16 | -2.24 |
-| Hexadecane | train | -8.40 | -8.21 | -0.19 |
-| 1-Octadecanol | train | -8.40 | -7.74 | -0.66 |
-| Etofenprox | val | -8.60 | -6.27 | -2.33 |
-| 2,2',3,3',4,4',5,5',6,6'-PCB | train | -11.60 | -10.80 | -0.80 |
-| 2,2',3,3',4,4',5,5'-PCB | train | -9.16 | -9.33 | +0.17 |
-| 2,2',4,4',6,6'-PCB | train | -8.71 | -7.95 | -0.76 |
-| 2,2',4,4',5,5'-PCB | train | -8.56 | -7.95 | -0.61 |
-| 2,2',3,3',5,5',6,6'-PCB | train | -9.15 | -9.33 | +0.18 |
-| 2,2',3,4,5,5',6-PCB | train | -8.94 | -8.33 | -0.61 |
-| 2,2',3,3',5,6-PCB | train | -8.60 | -7.95 | -0.65 |
-| Coronene | test | -9.33 | -7.21 | -2.12 |
-| Benzo[ghi]perylene | val | -9.02 | -7.94 | -1.08 |
-| Perylene | train | -8.80 | -8.25 | -0.55 |
-| Benzo(a)pyrene | train | -8.70 | -8.25 | -0.45 |
-| Benzo(k)fluoranthene | test | -8.49 | -8.13 | -0.36 |
-| Napthacene | val | -8.60 | -7.08 | -1.52 |
+| Deltamethrin | test | -8.40 | -6.48 | -1.92 |
+| Hexadecane | train | -8.40 | -8.20 | -0.20 |
+| 1-Octadecanol | train | -8.40 | -7.34 | -1.06 |
+| Etofenprox | val | -8.60 | -6.86 | -1.74 |
+| 2,2',3,3',4,4',5,5',6,6'-PCB | train | -11.60 | -10.20 | -1.40 |
+| 2,2',3,3',4,4',5,5'-PCB | train | -9.16 | -9.57 | +0.41 |
+| 2,2',4,4',6,6'-PCB | train | -8.71 | -7.92 | -0.79 |
+| 2,2',4,4',5,5'-PCB | train | -8.56 | -7.92 | -0.64 |
+| 2,2',3,3',5,5',6,6'-PCB | train | -9.15 | -9.57 | +0.42 |
+| 2,2',3,4,5,5',6-PCB | train | -8.94 | -8.37 | -0.57 |
+| 2,2',3,3',5,6-PCB | train | -8.60 | -7.92 | -0.68 |
+| Coronene | test | -9.33 | -7.46 | -1.87 |
+| Benzo[ghi]perylene | val | -9.02 | -7.88 | -1.14 |
+| Perylene | train | -8.80 | -8.12 | -0.68 |
+| Benzo(a)pyrene | train | -8.70 | -8.12 | -0.58 |
+| Benzo(k)fluoranthene | test | -8.49 | -7.87 | -0.62 |
+| Napthacene | val | -8.60 | -6.81 | -1.79 |
 
-Outlier-subset MAE: 0.898 vs whole-dataset MAE: 0.400
+Outlier-subset MAE: 0.971 vs whole-dataset MAE: 0.449
 Model does noticeably worse on these compounds than average - document as an applicability-domain limitation in the model card.

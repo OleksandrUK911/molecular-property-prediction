@@ -11,7 +11,7 @@ or heavy hyperparameter search are added).
 Usage:
     python ml/select_winner.py
 
-Reads ml/results/{baseline,xgboost,fingerprint_model}_metrics.json.
+Reads ml/results/{baseline,xgboost,fingerprint_model,xgboost_optuna}_metrics.json.
 Writes ml/results/experiment_comparison.md and ml/results/winner.json.
 """
 
@@ -20,7 +20,12 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 RESULTS_DIR = ROOT / "ml" / "results"
-RESULT_FILES = ["baseline_metrics.json", "xgboost_metrics.json", "fingerprint_model_metrics.json"]
+RESULT_FILES = [
+    "baseline_metrics.json",
+    "xgboost_metrics.json",
+    "fingerprint_model_metrics.json",
+    "xgboost_optuna_metrics.json",
+]
 
 # Selection criteria (documented, applied in this order):
 # 1. Best val RMSE (primary metric - test is never used for selection)

@@ -13,10 +13,15 @@ Also renders the top-5 (of the top-10) worst-residual molecules as 2D
 structures with their actual/predicted/residual values, so the worst cases
 identified numerically here are also visible as actual chemical structures.
 
-Reads ml/artifacts/xgboost_model.joblib and data/processed/esol_processed.csv.
+Loads whichever model ml/select_winner.py most recently picked (via
+ml/results/winner.json), not a hardcoded artifact.
+
+Reads ml/results/winner.json + the matching ml/artifacts/*.joblib, and
+data/processed/esol_processed.csv.
 Writes ml/results/error_analysis_report.md and ml/results/worst_predictions.png.
 """
 
+import json
 from pathlib import Path
 
 import joblib
@@ -30,8 +35,15 @@ from rdkit.Chem import Draw
 
 ROOT = Path(__file__).resolve().parent.parent
 PROCESSED_CSV = ROOT / "data" / "processed" / "esol_processed.csv"
-MODEL_PATH = ROOT / "ml" / "artifacts" / "xgboost_model.joblib"
+ARTIFACTS_DIR = ROOT / "ml" / "artifacts"
+WINNER_JSON_PATH = ROOT / "ml" / "results" / "winner.json"
 OUTPUT_PATH = ROOT / "ml" / "results" / "error_analysis_report.md"
+
+# Kept in sync with ml/register_model.py's mapping of the same name.
+MODEL_ARTIFACTS = {
+    "xgboost_tuned": "xgboost_model.joblib",
+    "xgboost_optuna": "xgboost_optuna_model.joblib",
+}
 WORST_PLOT_PATH = ROOT / "ml" / "results" / "worst_predictions.png"
 
 TOP_N = 10
@@ -66,7 +78,11 @@ def plot_worst_predictions(worst: pd.DataFrame) -> None:
 
 def main() -> None:
     df = pd.read_csv(PROCESSED_CSV)
-    bundle = joblib.load(MODEL_PATH)
+    winner_summary = json.loads(WINNER_JSON_PATH.read_text(encoding="utf-8"))
+    model_name = winner_summary["val"]["model_name"]
+    if model_name not in MODEL_ARTIFACTS:
+        raise ValueError(f"No artifact mapping for winner '{model_name}' - add one to MODEL_ARTIFACTS.")
+    bundle = joblib.load(ARTIFACTS_DIR / MODEL_ARTIFACTS[model_name])
     model, feature_names = bundle["model"], bundle["feature_names"]
 
     test = df[df["split"] == "test"].copy()

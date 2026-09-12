@@ -1,13 +1,18 @@
-"""SHAP feature importance for the winning model (xgboost_tuned), global
-and per-molecule, per ml/TODO_interpretability.md.
+"""SHAP feature importance for the winning model, global and per-molecule,
+per ml/TODO_interpretability.md.
 
 Usage:
     python ml/interpretability.py
 
-Reads ml/artifacts/xgboost_model.joblib + data/processed/esol_processed.csv.
+Loads whichever model ml/select_winner.py most recently picked (via
+ml/results/winner.json), not a hardcoded artifact.
+
+Reads ml/results/winner.json + the matching ml/artifacts/*.joblib, and
+data/processed/esol_processed.csv.
 Writes ml/results/interpretability_report.md and a summary plot PNG.
 """
 
+import json
 from pathlib import Path
 
 import joblib
@@ -21,8 +26,15 @@ from sklearn.inspection import PartialDependenceDisplay
 
 ROOT = Path(__file__).resolve().parent.parent
 PROCESSED_CSV = ROOT / "data" / "processed" / "esol_processed.csv"
-MODEL_PATH = ROOT / "ml" / "artifacts" / "xgboost_model.joblib"
+ARTIFACTS_DIR = ROOT / "ml" / "artifacts"
+WINNER_JSON_PATH = ROOT / "ml" / "results" / "winner.json"
 REPORT_PATH = ROOT / "ml" / "results" / "interpretability_report.md"
+
+# Kept in sync with ml/register_model.py's mapping of the same name.
+MODEL_ARTIFACTS = {
+    "xgboost_tuned": "xgboost_model.joblib",
+    "xgboost_optuna": "xgboost_optuna_model.joblib",
+}
 PLOT_PATH = ROOT / "ml" / "results" / "shap_summary.png"
 PDP_PLOT_PATH = ROOT / "ml" / "results" / "pdp_plots.png"
 
@@ -36,10 +48,19 @@ EXAMPLE_MOLECULES = {
 
 def main() -> None:
     df = pd.read_csv(PROCESSED_CSV)
-    bundle = joblib.load(MODEL_PATH)
+    winner_summary = json.loads(WINNER_JSON_PATH.read_text(encoding="utf-8"))
+    model_name = winner_summary["val"]["model_name"]
+    if model_name not in MODEL_ARTIFACTS:
+        raise ValueError(f"No artifact mapping for winner '{model_name}' - add one to MODEL_ARTIFACTS.")
+    bundle = joblib.load(ARTIFACTS_DIR / MODEL_ARTIFACTS[model_name])
     model, feature_names = bundle["model"], bundle["feature_names"]
 
-    X_test = df[df["split"] == "test"][feature_names]
+    # float64, not the mixed int/float dtypes in the source CSV - sklearn's
+    # PartialDependenceDisplay refuses integer-typed columns (e.g. RingCount,
+    # NumHDonors) outright. This only ever surfaced once a winner whose
+    # top-2 SHAP features included an int column was selected - a latent
+    # bug, not something specific to any one model.
+    X_test = df[df["split"] == "test"][feature_names].astype(float)
 
     explainer = shap.TreeExplainer(model)
     shap_values = explainer(X_test)
@@ -62,7 +83,7 @@ def main() -> None:
         .sort_values(ascending=False)
     )
 
-    lines = ["# Interpretability report (SHAP, winner: xgboost_tuned)\n\n"]
+    lines = [f"# Interpretability report (SHAP, winner: {model_name})\n\n"]
     lines.append("## Global feature importance (mean |SHAP value| on test set)\n\n")
     for name, value in global_importance.items():
         lines.append(f"- {name}: {value:.3f}\n")
@@ -121,7 +142,7 @@ def main() -> None:
     lines.append(
         "Partial dependence shows the marginal effect of each feature on the "
         "predicted log solubility, averaging out the other features, using "
-        "the same fitted `xgboost_tuned` model evaluated on the test set.\n\n"
+        f"the same fitted `{model_name}` model evaluated on the test set.\n\n"
     )
     lines.append(f"![Partial dependence plots]({PDP_PLOT_PATH.name})\n")
 

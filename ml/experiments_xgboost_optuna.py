@@ -4,8 +4,10 @@ ml/experiments_xgboost.py (which is deliberately simplified - see its
 module docstring). This script does NOT replace or modify
 ml/experiments_xgboost.py; it's a separate, additive experiment.
 
-Requires the optional `optuna` dependency:
-    pip install -r ml/requirements-optuna.txt
+Promoted to the standard pipeline (see requirements.txt, root README.md,
+.github/workflows/ci.yml) after this search found a real val RMSE
+improvement over the fixed grid - see the comparison below and
+ml/results/optuna_report.md's "Honest verdict" section.
 
 Usage:
     python ml/experiments_xgboost_optuna.py
@@ -32,6 +34,7 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
+import joblib
 import numpy as np
 import optuna
 import pandas as pd
@@ -48,6 +51,7 @@ from data_versioning import compute_data_version
 ROOT = Path(__file__).resolve().parent.parent
 PROCESSED_CSV = ROOT / "data" / "processed" / "esol_processed.csv"
 RESULTS_PATH = ROOT / "ml" / "results" / "xgboost_optuna_metrics.json"
+MODEL_PATH = ROOT / "ml" / "artifacts" / "xgboost_optuna_model.joblib"
 REPORT_PATH = ROOT / "ml" / "results" / "optuna_report.md"
 HISTORY_PLOT_PATH = ROOT / "ml" / "results" / "optuna_history.png"
 
@@ -120,6 +124,13 @@ def main() -> None:
 
     RESULTS_PATH.parent.mkdir(parents=True, exist_ok=True)
     RESULTS_PATH.write_text(json.dumps(records, indent=2), encoding="utf-8")
+
+    # Persist the actual trained model, not just its metrics - without this,
+    # a human "promoting" this candidate via select_winner.py would have no
+    # model object to register (ml/register_model.py loads from disk, it
+    # doesn't retrain).
+    MODEL_PATH.parent.mkdir(parents=True, exist_ok=True)
+    joblib.dump({"model": best_model, "feature_names": DESCRIPTOR_COLUMNS, "hyperparameters": best_params}, MODEL_PATH)
 
     val_record = next(r for r in records if r["split"] == "val")
     test_record = next(r for r in records if r["split"] == "test")
@@ -208,7 +219,7 @@ def main() -> None:
         print(f"{r['model_name']:<16} {r['split']:<6} {r['rmse']:>8.3f} {r['mae']:>8.3f} {r['r2']:>8.3f}")
     print(f"\nFixed-grid val RMSE: {FIXED_GRID_VAL_RMSE:.3f} | Optuna val RMSE: {val_record['rmse']:.3f} | "
           f"delta: {improvement:+.3f} -> {verdict}")
-    print(f"\nWrote {RESULTS_PATH}\nWrote {REPORT_PATH}")
+    print(f"\nWrote {RESULTS_PATH}\nWrote {REPORT_PATH}\nWrote {MODEL_PATH}")
     if plot_written:
         print(f"Wrote {HISTORY_PLOT_PATH}")
 
