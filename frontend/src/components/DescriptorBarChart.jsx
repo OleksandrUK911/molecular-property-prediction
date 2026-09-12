@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Bar, BarChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { useTranslation } from "react-i18next";
+import { formatNumber } from "../formatters";
 
 // Reference ranges for normalization - see ../frontend-spec/data-visualization.md
 const REFERENCE_RANGES = {
@@ -29,12 +30,12 @@ function CustomTooltip({ active, payload }) {
 }
 
 export function DescriptorBarChart({ descriptors }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [showTable, setShowTable] = useState(false);
 
   const data = Object.entries(descriptors).map(([name, raw]) => ({
     name,
-    raw: typeof raw === "number" ? raw.toFixed(2) : raw,
+    raw: typeof raw === "number" ? formatNumber(raw, i18n.language) : raw,
     normalized: normalize(name, raw),
   }));
 
@@ -87,7 +88,7 @@ export function DescriptorBarChart({ descriptors }) {
                   </td>
                   <td style={{ padding: "4px 8px", borderBottom: "1px solid var(--border)" }}>{row.raw}</td>
                   <td style={{ padding: "4px 8px", borderBottom: "1px solid var(--border)" }}>
-                    {row.normalized.toFixed(2)}
+                    {formatNumber(row.normalized, i18n.language)}
                   </td>
                 </tr>
               ))}

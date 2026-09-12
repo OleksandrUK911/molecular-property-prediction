@@ -65,7 +65,9 @@ describe("PredictPage", () => {
     await waitFor(() => {
       expect(screen.getByText(/Predicted solubility: -2\.10 log\(mol\/L\)/)).toBeInTheDocument();
     });
-    expect(screen.getByRole("img", { name: "2D structure of the input molecule" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "2D structure of the input molecule. Click to enlarge." }),
+    ).toBeInTheDocument();
     expect(screen.queryByRole("status")).not.toBeInTheDocument();
     expect(screen.queryByRole("alert")).not.toBeInTheDocument();
   });

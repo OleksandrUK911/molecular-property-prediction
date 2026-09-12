@@ -33,7 +33,9 @@
     "columnSmiles": "SMILES",
     "columnPredicted": "Predicted",
     "columnDate": "Date",
-    "viewButton": "View"
+    "viewButton": "View",
+    "trendTitle": "Prediction trend",
+    "trendAriaLabel": "Line chart of predicted solubility over time"
   },
   "about": {
     "title": "About",
@@ -71,7 +73,10 @@
   },
   "structure": {
     "ariaLabel": "2D structure of the input molecule",
-    "unavailable": "Structure preview unavailable"
+    "unavailable": "Structure preview unavailable",
+    "zoomTrigger": "2D structure of the input molecule. Click to enlarge.",
+    "closeZoom": "Close enlarged structure",
+    "closeZoomSymbol": "✕"
   },
   "errors": {
     "retry": "Retry",

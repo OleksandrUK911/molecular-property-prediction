@@ -1,4 +1,5 @@
 import { useTranslation } from "react-i18next";
+import { formatNumber } from "../formatters";
 
 const DESCRIPTOR_KEYS = {
   MolWt: "MolWt",
@@ -11,7 +12,7 @@ const DESCRIPTOR_KEYS = {
 };
 
 export function ResultsCard({ result }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   return (
     <div
       style={{
@@ -21,14 +22,16 @@ export function ResultsCard({ result }) {
         border: "1px solid var(--border)",
       }}
     >
-      <h2>{t("results.predictedSolubility", { value: result.predicted_target.toFixed(2) })}</h2>
+      <h2>
+        {t("results.predictedSolubility", { value: formatNumber(result.predicted_target, i18n.language) })}
+      </h2>
       <hr style={{ border: "none", borderTop: "1px solid var(--border)", margin: "12px 0" }} />
       {Object.entries(result.descriptors).map(([key, value]) => (
         <div key={key} style={{ display: "flex", justifyContent: "space-between", padding: "4px 0" }}>
           <span className="text-muted">
             {DESCRIPTOR_KEYS[key] ? t(`results.descriptors.${DESCRIPTOR_KEYS[key]}`) : key}
           </span>
-          <span>{typeof value === "number" ? value.toFixed(2) : value}</span>
+          <span>{typeof value === "number" ? formatNumber(value, i18n.language) : value}</span>
         </div>
       ))}
       {result.confidence === null && (
