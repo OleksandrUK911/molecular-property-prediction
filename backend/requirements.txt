@@ -5,3 +5,4 @@ rdkit==2026.3.6
 joblib==1.6.0
 numpy==2.5.3
 xgboost==3.4.1
+slowapi==0.1.10

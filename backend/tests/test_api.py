@@ -75,3 +75,29 @@ def test_failed_prediction_does_not_write_history():
         client.post("/predict", json={"smiles": "!!!not-a-smiles!!!"})
         response = client.get("/history")
     assert response.json() == []
+
+
+def test_rate_limit_returns_429_after_threshold():
+    with TestClient(app) as client:
+        responses = [client.post("/predict", json={"smiles": "CCO"}) for _ in range(31)]
+    assert responses[-1].status_code == 429
+    assert "detail" in responses[-1].json()
+
+
+def test_unhandled_exception_returns_generic_500(monkeypatch):
+    import backend.app.main as main_module
+
+    def boom(_smiles):
+        raise RuntimeError("simulated failure")
+
+    # raise_server_exceptions=False: otherwise TestClient re-raises the
+    # original exception for debugging even though our handler already
+    # produced a real 500 response - we want to assert on that response.
+    with TestClient(app, raise_server_exceptions=False) as client:
+        # Patch only after lifespan startup has run, so model_service is
+        # already the real instance (not None) - patching before entering
+        # the context would target a not-yet-initialized global.
+        monkeypatch.setattr(main_module.model_service, "predict", boom)
+        response = client.post("/predict", json={"smiles": "CCO"})
+    assert response.status_code == 500
+    assert response.json() == {"detail": "Internal server error"}
