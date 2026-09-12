@@ -9,21 +9,59 @@ residuals overall, and whether the worst-predicted molecules skew toward a
 particular descriptor range (via a simple |residual| vs. descriptor
 correlation, and a worst-10 vs. rest descriptor-mean comparison).
 
+Also renders the top-5 (of the top-10) worst-residual molecules as 2D
+structures with their actual/predicted/residual values, so the worst cases
+identified numerically here are also visible as actual chemical structures.
+
 Reads ml/artifacts/xgboost_model.joblib and data/processed/esol_processed.csv.
-Writes ml/results/error_analysis_report.md.
+Writes ml/results/error_analysis_report.md and ml/results/worst_predictions.png.
 """
 
 from pathlib import Path
 
 import joblib
+import matplotlib
+
+matplotlib.use("Agg")  # headless - no display available in CI/containers
+import matplotlib.pyplot as plt
 import pandas as pd
+from rdkit import Chem
+from rdkit.Chem import Draw
 
 ROOT = Path(__file__).resolve().parent.parent
 PROCESSED_CSV = ROOT / "data" / "processed" / "esol_processed.csv"
 MODEL_PATH = ROOT / "ml" / "artifacts" / "xgboost_model.joblib"
 OUTPUT_PATH = ROOT / "ml" / "results" / "error_analysis_report.md"
+WORST_PLOT_PATH = ROOT / "ml" / "results" / "worst_predictions.png"
 
 TOP_N = 10
+WORST_PLOT_N = 5
+
+
+def plot_worst_predictions(worst: pd.DataFrame) -> None:
+    """Render 2D structures for the top-N worst-residual molecules, each
+    captioned with compound_id, actual, predicted and residual values.
+    """
+    top = worst.head(WORST_PLOT_N)
+    fig, axes = plt.subplots(1, len(top), figsize=(4 * len(top), 5))
+    if len(top) == 1:
+        axes = [axes]
+    for ax, (_, row) in zip(axes, top.iterrows()):
+        mol = Chem.MolFromSmiles(row["smiles"])
+        img = Draw.MolToImage(mol, size=(300, 300)) if mol is not None else None
+        if img is not None:
+            ax.imshow(img)
+        ax.axis("off")
+        ax.set_title(
+            f"{row['compound_id']}\n"
+            f"actual={row['target']:.2f}  pred={row['predicted']:.2f}\n"
+            f"residual={row['residual']:+.2f}",
+            fontsize=9,
+        )
+    fig.suptitle(f"Top {len(top)} worst-predicted test compounds (structures)")
+    plt.tight_layout()
+    plt.savefig(WORST_PLOT_PATH, dpi=120)
+    plt.close(fig)
 
 
 def main() -> None:
@@ -38,6 +76,8 @@ def main() -> None:
 
     worst = test.sort_values("abs_residual", ascending=False).head(TOP_N)
     rest = test.drop(worst.index)
+
+    plot_worst_predictions(worst)
 
     lines = ["# Whole-test-set error analysis\n\n"]
     lines.append(
@@ -56,6 +96,11 @@ def main() -> None:
 
     lines.append(f"\nWorst-{TOP_N} MAE: {worst['abs_residual'].mean():.3f} vs. rest-of-test MAE: {rest['abs_residual'].mean():.3f} "
                   f"vs. whole-test MAE: {test['abs_residual'].mean():.3f}\n")
+
+    lines.append(
+        f"\n![Top {WORST_PLOT_N} worst-predicted molecules, structures with "
+        f"actual/predicted/residual]({WORST_PLOT_PATH.name})\n"
+    )
 
     descriptor_columns = feature_names
     lines.append("\n## Correlation of |residual| with each descriptor (whole test set)\n\n")
@@ -106,7 +151,7 @@ def main() -> None:
     OUTPUT_PATH.write_text("".join(lines), encoding="utf-8")
 
     print("".join(lines))
-    print(f"Wrote {OUTPUT_PATH}")
+    print(f"Wrote {OUTPUT_PATH}\nWrote {WORST_PLOT_PATH}")
 
 
 if __name__ == "__main__":

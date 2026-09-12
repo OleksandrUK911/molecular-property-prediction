@@ -19,6 +19,8 @@ Test set: 107 compounds. This looks beyond the 17 known IQR-outlier compounds (s
 
 Worst-10 MAE: 2.219 vs. rest-of-test MAE: 0.474 vs. whole-test MAE: 0.637
 
+![Top 5 worst-predicted molecules, structures with actual/predicted/residual](worst_predictions.png)
+
 ## Correlation of |residual| with each descriptor (whole test set)
 
 | Descriptor | Pearson r with |residual| |
