@@ -2,11 +2,12 @@
 GET /model/info, GET /history."""
 
 import logging
+import os
 import uuid
 from contextlib import asynccontextmanager
 from datetime import datetime, timezone
 
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import Depends, FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from slowapi import Limiter
@@ -79,6 +80,24 @@ async def unhandled_exception_handler(request: Request, exc: Exception) -> JSONR
     return JSONResponse(status_code=500, content={"detail": "Internal server error"})
 
 
+def require_api_key(request: Request) -> None:
+    """Optional API-key gate for the costly prediction endpoints (P2 in the
+    project plan - this is a public portfolio demo, so auth is opt-in).
+
+    Reads os.environ["API_KEY"] fresh on every call rather than caching it
+    at import time, so that: (a) the default (unset) case leaves /predict
+    and /predict/batch fully public, matching this project's actual
+    public-demo deployment, and (b) tests can toggle it on/off per-test via
+    monkeypatch.setenv without needing to reload the module.
+    """
+    expected = os.environ.get("API_KEY")
+    if not expected:
+        return
+    provided = request.headers.get("X-API-Key")
+    if provided != expected:
+        raise HTTPException(status_code=401, detail="Invalid or missing API key")
+
+
 def _record_history(result: dict) -> None:
     """Persist one successful prediction as a history row. Shared by
     /predict and /predict/batch so the uuid/timestamp/insert logic lives
@@ -121,7 +140,10 @@ def model_info() -> dict:
     summary="Predict solubility from a single SMILES string",
     description="Parses the given SMILES with RDKit, computes molecular descriptors, and returns "
     "the model's predicted aqueous solubility along with a rendered structure. Successful "
-    "predictions are persisted to /history. Rate limited to 30 requests/minute per client.",
+    "predictions are persisted to /history. Rate limited to 30 requests/minute per client. "
+    "Requires an X-API-Key header only if the API_KEY environment variable is configured "
+    "(unset by default - see backend-spec/api-contract.md).",
+    dependencies=[Depends(require_api_key)],
 )
 @limiter.limit("30/minute")
 def predict(request: Request, body: PredictRequest) -> dict:
@@ -147,7 +169,10 @@ def predict(request: Request, body: PredictRequest) -> dict:
     description="Runs prediction for up to 20 SMILES strings in one call. A SMILES that fails to "
     "parse does not fail the whole batch - it comes back as a per-item `error` entry alongside the "
     "other items' `result` entries, in the same order as the request. Every successful item is "
-    "persisted to /history. Rate limited to 30 requests/minute per client.",
+    "persisted to /history. Rate limited to 30 requests/minute per client. Requires an "
+    "X-API-Key header only if the API_KEY environment variable is configured (unset by "
+    "default - see backend-spec/api-contract.md).",
+    dependencies=[Depends(require_api_key)],
 )
 @limiter.limit("30/minute")
 def predict_batch(request: Request, body: PredictBatchRequest) -> dict:

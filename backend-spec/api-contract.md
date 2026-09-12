@@ -110,6 +110,27 @@ avoid duplicating render output in the DB. A `GET /history` list response is
 an array of the object above; no separate `/history/{id}` endpoint needed
 for MVP since "View" just re-populates the Predict page client-side.
 
+## Authentication (optional, P2)
+
+Auth is **off by default** — this is a public portfolio demo and every
+endpoint is intentionally open with no login. An optional API-key gate
+exists for anyone who wants to lock down their own deployment:
+
+- Set the `API_KEY` environment variable to any non-empty string to enable
+  it. Unset (the default, including the actual public demo deployment),
+  every endpoint behaves exactly as documented above with no auth required.
+- When `API_KEY` is set, `POST /predict` and `POST /predict/batch` require
+  a matching `X-API-Key` request header. A missing or mismatched header
+  returns `401 { "detail": "Invalid or missing API key" }`.
+- `GET /health`, `GET /model/info`, and `GET /history` stay public
+  regardless of `API_KEY` — they're read-only and don't run inference, so
+  there's nothing costly to protect.
+- Implemented as a FastAPI dependency (`require_api_key` in
+  `backend/app/main.py`) that reads `os.environ["API_KEY"]` fresh on every
+  request, not a module-level constant — this only matters for tests
+  (`monkeypatch.setenv` needs a per-request read to take effect), but keeps
+  the behavior correct if the env var changes without a process restart too.
+
 ### Залежності
 - `descriptors` field names are generated from `ml/preprocess.py`; if that
   dict changes, update this file AND `frontend-spec/components.md` /
