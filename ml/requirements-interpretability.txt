@@ -1,0 +1,5 @@
+# Optional, heavy deps (numba/llvmlite) only needed for ml/interpretability.py -
+# kept out of requirements.txt / requirements-dev.txt so CI and the backend
+# image don't pay for them.
+shap==0.52.0
+matplotlib==3.11.2

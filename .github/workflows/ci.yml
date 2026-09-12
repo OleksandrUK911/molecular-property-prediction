@@ -37,7 +37,10 @@ jobs:
           python ml/register_model.py
 
       - name: Test (pytest + coverage)
-        run: pytest backend/tests/ --cov=backend/app --cov-report=term-missing
+        run: pytest backend/tests/ ml/tests/ --cov=backend/app --cov=ml --cov-report=term-missing
+
+      - name: Audit dependencies (pip-audit)
+        run: pip install pip-audit && pip-audit -r requirements.txt || true
 
       - name: Build backend Docker image
         run: docker build -f backend/Dockerfile -t backend:ci .
@@ -61,6 +64,9 @@ jobs:
 
       - name: Lint (oxlint)
         run: npm run lint
+
+      - name: Audit dependencies (npm audit)
+        run: npm audit --audit-level=high || true
 
       - name: Build
         run: npm run build
