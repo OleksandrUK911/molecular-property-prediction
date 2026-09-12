@@ -38,7 +38,7 @@ export function SmilesInput({ value, onChange, onSubmit, disabled }) {
           padding: "8px 20px",
           borderRadius: "var(--radius-card)",
           border: "none",
-          background: disabled ? "var(--text-muted)" : "var(--accent)",
+          background: disabled ? "var(--text-muted)" : "var(--accent-hover)",
           color: "white",
           cursor: disabled ? "not-allowed" : "pointer",
         }}
