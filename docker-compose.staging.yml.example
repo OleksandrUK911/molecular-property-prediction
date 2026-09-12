@@ -1,0 +1,20 @@
+# Template for a staging deployment. This project has no real staging
+# hosting yet - copy this file to docker-compose.staging.yml (gitignored,
+# or keep it out of git entirely) and fill in your actual staging domain
+# before use. Run with:
+#   docker compose -f docker-compose.yml -f docker-compose.staging.yml up --build
+#
+# It layers on top of the base docker-compose.yml and only overrides what
+# differs from local dev: CORS_ALLOWED_ORIGINS (so the backend accepts
+# requests from the staging frontend's real origin instead of localhost)
+# and VITE_API_BASE_URL (so the staging frontend build points at the
+# staging backend's real URL instead of localhost:8000).
+services:
+  backend:
+    environment:
+      CORS_ALLOWED_ORIGINS: https://staging.example-prod-domain.com
+
+  frontend:
+    build:
+      args:
+        VITE_API_BASE_URL: https://staging-api.example-prod-domain.com

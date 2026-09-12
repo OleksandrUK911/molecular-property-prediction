@@ -1,0 +1,20 @@
+# Template for LOCAL development overrides. docker-compose.yml's defaults
+# (CORS_ALLOWED_ORIGINS unset -> localhost:5173/3000 in backend/app/main.py,
+# VITE_API_BASE_URL -> localhost:8000) already work for local dev with no
+# override at all - this file exists only to show explicitly, side by side
+# with docker-compose.staging.yml.example and docker-compose.prod.yml.example,
+# what the "local" values are and where they'd change per environment.
+#
+# docker compose automatically picks up a file literally named
+# docker-compose.override.yml (no ".example") - copy this file to that name
+# if you want to customize local dev (e.g. a different local port) without
+# passing extra -f flags.
+services:
+  backend:
+    environment:
+      CORS_ALLOWED_ORIGINS: http://localhost:5173,http://localhost:3000
+
+  frontend:
+    build:
+      args:
+        VITE_API_BASE_URL: http://localhost:8000
